@@ -1,0 +1,58 @@
+CREATE TABLE "Usuario" (
+  "pk_uuid" uuid NOT NULL,
+  "username" character varying(35) NOT NULL,
+  "secret" character varying(100) NOT NULL,
+  "creation_time" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "modification_time" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE "Datos_Usuario" (
+  "fk_uuid_usuario" uuid NOT NULL,
+  "nombre" character(25) NULL,
+  "apellido" character(25) NULL,
+  "edad" smallint NULL,
+  "fk_key_ubicacion" character varying(10)  NULL,
+  "email" character varying(35) NOT NULL
+);
+
+CREATE TABLE "Historico_Consulta" (
+  "fk_uuid_usuario" uuid NOT NULL,
+  "pk_historico_consulta" bigserial NOT NULL,
+  "fk_key_ubicacion" character varying(10) NOT NULL,
+  "clima" character varying(25) NULL,
+  "presion" integer NULL,
+  "humedad" integer NULL,
+  "velviento" integer NULL,
+  "temperatura_actual" integer NULL,
+  "temperatura_max" integer NULL,
+  "temperatura_min" integer NULL,
+  "creation_time" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "modification_time" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE "Ubicacion" (
+  "key_ubicacion" character varying(10) NOT NULL,
+  "key_cp_ubicacion" character varying(10) NOT NULL,
+  "pais" character varying(38) NOT NULL,
+  "estado" character varying(38) NOT NULL,
+  "ciudad" character varying(48) NOT NULL,
+  "creation_time" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "modification_time" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+ALTER TABLE "Ubicacion"
+ADD CONSTRAINT "Ubicacion_key_ubicacion" PRIMARY KEY ("key_ubicacion");
+CREATE INDEX "Ubicacion_key_cp_ubicacion" ON "Ubicacion" ("key_cp_ubicacion");
+
+ALTER TABLE "Usuario"
+ADD CONSTRAINT "Usuario_uuid" PRIMARY KEY ("pk_uuid"),
+ADD CONSTRAINT "Usuario_username" UNIQUE ("username");
+
+ALTER TABLE "Datos_Usuario"
+ADD CONSTRAINT "Usuario_fk_uuid_usuario" UNIQUE ("fk_uuid_usuario"),
+ADD FOREIGN KEY ("fk_uuid_usuario") REFERENCES "Usuario" ("pk_uuid") ON DELETE CASCADE ON UPDATE CASCADE,
+ADD FOREIGN KEY ("fk_key_ubicacion") REFERENCES "Ubicacion" ("key_ubicacion") ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE "Historico_Consulta"
+ADD CONSTRAINT "Historico_Consulta_pk_historico_consulta" PRIMARY KEY ("pk_historico_consulta"),
+ADD FOREIGN KEY ("fk_uuid_usuario") REFERENCES "Usuario" ("pk_uuid") ON DELETE CASCADE ON UPDATE CASCADE,
+ADD FOREIGN KEY ("fk_key_ubicacion") REFERENCES "Ubicacion" ("key_ubicacion") ON DELETE NO ACTION;
