@@ -1,6 +1,12 @@
 # Use postgres/example user/password credentials
 version: '16.0'
-
+volumes:
+  volume-fastapi:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./app
+      o: bind
 services:
   db:
     image: postgres
@@ -9,16 +15,23 @@ services:
       POSTGRES_USER: admin_postgresql
       POSTGRES_PASSWORD: admin01
     ports:
-      - 5454:5454
+      - 5432:5432
+    expose:
+      - 5432
   adminer:
     image: adminer
     restart: always
     ports:
       - 8080:8080
   web:
+    volumes: 
+      - "volume-fastapi:/usr/src/app" 
     image: "app:clima"
-    build: ./Clima_app
-    command: uvicorn main:app --reload --host 0.0.0.0 --port 8000
-    restart: always
+    build:
+      context: ./app
+    links:
+      - db
+    command:
+      uvicorn --host 0.0.0.0 main:app --reload
     ports:
       - 8000:8000
